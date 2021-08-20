@@ -1,0 +1,10 @@
+name: 'PR Verified Commits'
+description: 'Ensures all commits in a PR are verified'
+author: 'invakid404'
+inputs:
+  label:
+    required: false
+    description: "Label to add to the PR if title doesn't match"
+runs:
+  using: 'node12'
+  main: 'dist/index.js'
