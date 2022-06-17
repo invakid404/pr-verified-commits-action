@@ -1,17 +1,16 @@
 {
-  "name": "pr-title-matcher",
+  "name": "pr-verified-commits-action",
   "version": "0.0.0",
   "private": true,
-  "description": "Match the title of a pull request against a regex and retrieve the matched groups",
+  "description": "Ensures all commits in a PR are verified",
   "main": "lib/main.js",
   "scripts": {
     "build": "tsc",
-    "codegen": "graphql-codegen --config codegen.yml",
     "format": "prettier --write \"**/*.ts\"",
     "format-check": "prettier --check \"**/*.ts\"",
     "lint": "eslint \"src/**/*.ts\"",
     "package": "ncc build --source-map --license licenses.txt",
-    "all": "npm run codegen && npm run build && npm run format && npm run lint && npm run package"
+    "all": "npm run build && npm run format && npm run lint && npm run package"
   },
   "repository": {
     "type": "git",
@@ -32,10 +31,6 @@
     "json-to-graphql-query": "^2.1.0"
   },
   "devDependencies": {
-    "@graphql-codegen/cli": "2.2.0",
-    "@graphql-codegen/typescript": "2.2.2",
-    "@graphql-codegen/typescript-document-nodes": "2.1.4",
-    "@graphql-codegen/typescript-resolvers": "2.2.1",
     "@octokit/graphql-schema": "^10.72.0",
     "@types/node": "^16.10.1",
     "@typescript-eslint/parser": "^4.31.2",

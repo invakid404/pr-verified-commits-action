@@ -1,6 +1,75 @@
 require('./sourcemap-register.js');/******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
+/***/ 3916:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.getCommitsSignatureInfo = void 0;
+const github = __importStar(__nccwpck_require__(5438));
+const json_to_graphql_query_1 = __nccwpck_require__(6450);
+const octokit_1 = __nccwpck_require__(3258);
+const utils_1 = __nccwpck_require__(918);
+const getCommitsSignatureInfo = async (number) => {
+    var _a, _b;
+    const request = {
+        query: {
+            repository: {
+                __args: {
+                    owner: github.context.repo.owner,
+                    name: github.context.repo.repo,
+                },
+                pullRequest: {
+                    __args: {
+                        number,
+                    },
+                    commits: {
+                        __args: {
+                            first: 100,
+                        },
+                        nodes: {
+                            commit: {
+                                oid: true,
+                                signature: {
+                                    isValid: true,
+                                    state: true,
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        },
+    };
+    const { repository: { pullRequest }, } = await (0, octokit_1.octokit)((0, json_to_graphql_query_1.jsonToGraphQLQuery)(request));
+    return ((_b = (_a = pullRequest === null || pullRequest === void 0 ? void 0 : pullRequest.commits.nodes) === null || _a === void 0 ? void 0 : _a.filter(utils_1.notEmpty).map(({ commit }) => commit)) !== null && _b !== void 0 ? _b : []);
+};
+exports.getCommitsSignatureInfo = getCommitsSignatureInfo;
+
+
+/***/ }),
+
 /***/ 3579:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
@@ -137,27 +206,24 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(2186));
 const github = __importStar(__nccwpck_require__(5438));
+const commits_1 = __nccwpck_require__(3916);
 const labels_1 = __nccwpck_require__(3579);
 (async () => {
-    var _a;
     if (!github.context.payload.pull_request) {
         core.info('No pull request found, exiting.');
         return;
     }
-    const { node_id: id, title, labels } = github.context.payload.pull_request;
-    const regexPattern = core.getInput('regex', { required: true });
-    const regexFlags = core.getInput('flags');
     const label = core.getInput('label');
-    const regex = new RegExp(regexPattern, regexFlags);
-    const res = regex.exec(title);
-    if (!res) {
+    const { node_id: id, labels, number } = github.context.payload.pull_request;
+    const commits = await (0, commits_1.getCommitsSignatureInfo)(number);
+    const hasUnsignedCommits = commits.some(({ signature }) => !(signature === null || signature === void 0 ? void 0 : signature.isValid));
+    if (hasUnsignedCommits) {
         if (label) {
             await (0, labels_1.addLabelByName)({ id }, label);
         }
-        core.setFailed("PR title doesn't match!");
+        core.setFailed('PR has unsigned commits!');
         return;
     }
-    Object.entries((_a = res.groups) !== null && _a !== void 0 ? _a : {}).forEach(([groupName, groupVal]) => core.setOutput(groupName, groupVal));
     const hasLabel = label && labels.some((curr) => curr.name === label);
     if (hasLabel) {
         await (0, labels_1.removeLabelByName)({ id }, label);

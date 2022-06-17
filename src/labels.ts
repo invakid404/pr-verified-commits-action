@@ -1,7 +1,7 @@
 import * as github from '@actions/github';
+import { Label, Labelable, Node, Repository } from '@octokit/graphql-schema';
 import { jsonToGraphQLQuery } from 'json-to-graphql-query';
 
-import { Label, Labelable, Node, Repository } from './generated/graphql';
 import { octokit } from './octokit';
 import { notEmpty } from './utils';
 

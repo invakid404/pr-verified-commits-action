@@ -1,6 +1,7 @@
 import * as core from '@actions/core';
 import * as github from '@actions/github';
 
+import { getCommitsSignatureInfo } from './commits';
 import { addLabelByName, removeLabelByName } from './labels';
 
 (async (): Promise<void> => {
@@ -10,29 +11,24 @@ import { addLabelByName, removeLabelByName } from './labels';
     return;
   }
 
-  const { node_id: id, title, labels } = github.context.payload.pull_request;
-
-  const regexPattern = core.getInput('regex', { required: true });
-  const regexFlags = core.getInput('flags');
-
   const label = core.getInput('label');
 
-  const regex = new RegExp(regexPattern, regexFlags);
+  const { node_id: id, labels, number } = github.context.payload.pull_request;
 
-  const res = regex.exec(title);
-  if (!res) {
+  const commits = await getCommitsSignatureInfo(number);
+
+  const hasUnsignedCommits = commits.some(
+    ({ signature }) => !signature?.isValid,
+  );
+  if (hasUnsignedCommits) {
     if (label) {
       await addLabelByName({ id }, label);
     }
 
-    core.setFailed("PR title doesn't match!");
+    core.setFailed('PR has unsigned commits!');
 
     return;
   }
-
-  Object.entries(res.groups ?? {}).forEach(([groupName, groupVal]) =>
-    core.setOutput(groupName, groupVal),
-  );
 
   const hasLabel =
     label && labels.some((curr: { name: string }) => curr.name === label);

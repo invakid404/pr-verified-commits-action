@@ -1,14 +1,7 @@
-name: 'PR title matcher'
-description: 'Match the title of a pull request against a regex and retrieve the matched groups'
+name: 'PR Verified Commits'
+description: 'Ensures all commits in a PR are verified'
 author: 'invakid404'
 inputs:
-  regex:
-    required: true
-    description: "Regex pattern to match the PR title against"
-  flags:
-    required: false
-    description: "Flags to use when constructing the regex"
-    default: ''
   label:
     required: false
     description: "Label to add to the PR if title doesn't match"
