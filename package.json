@@ -31,7 +31,7 @@
     "json-to-graphql-query": "^2.1.0"
   },
   "devDependencies": {
-    "@octokit/graphql-schema": "^10.72.0",
+    "@octokit/graphql-schema": "^12.7.1",
     "@types/node": "^18.0.0",
     "@typescript-eslint/parser": "^4.31.2",
     "@vercel/ncc": "^0.31.1",
